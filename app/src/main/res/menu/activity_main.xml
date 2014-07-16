@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_change_view"
+        android:icon="@drawable/ic_action_list"
+        android:title="@string/menu_main_list_view"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_action_search"
+        android:title="@string/menu_main_search"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_check_passive_state"
+        android:title="Check passive receiver state"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/settings"
+        app:showAsAction="never"
+        android:orderInCategory="100"/>
+</menu>

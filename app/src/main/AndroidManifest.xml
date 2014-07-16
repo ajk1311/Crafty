@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.akausejr.crafty" >
+
+    <!-- Permissions to access the network -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- External storage for caching -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- Permissions for location services -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- Required for activity tracking -->
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+
+    <!-- Maps API needs OpenGL ES 2.0. -->
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:name=".CraftyApp">
+
+        <!--    Activities  -->
+
+        <activity android:name=".app.LaunchActivity"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Crafty.Base">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".app.BreweryActivity"
+            android:label=""
+            android:theme="@style/Theme.Crafty.Main" />
+
+        <!--    Services    -->
+        <service
+            android:name=".service.BreweryLocationUpdateService"
+            android:exported="false" />
+        <service
+            android:name=".service.LocationDetailsUpdateService"
+            android:exported="false" />
+        <service
+            android:name=".service.EnablePassiveLocationReceiverService"
+            android:exported="false"/>
+        <service
+            android:name=".service.UserActivityService"
+            android:exported="false" />
+
+
+        <!--    Receivers   -->
+        <receiver android:name=".receiver.PassiveLocationReceiver" />
+        <receiver android:name=".receiver.BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".receiver.ConnectivityReceiver" android:enabled="false">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".receiver.PowerReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_BATTERY_LOW"/>
+                <action android:name="android.intent.action.ACTION_BATTERY_OKAY"/>
+            </intent-filter>
+        </receiver>
+
+        <!--    Providers   -->
+        <provider
+            android:authorities="com.akausejr.crafty.provider"
+            android:name=".provider.CraftyContentProvider"
+            android:exported="false" />
+
+        <!--    Meta    -->
+
+        <!-- Google Maps v2 API Key -->
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyBX2K5jKdIsV3KR-0P7lS8GqHp4VQvzY8A"/>
+
+        <!-- Play services version -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+    </application>
+</manifest>

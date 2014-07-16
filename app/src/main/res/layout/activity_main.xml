@@ -1,0 +1,28 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <fragment
+        android:id="@+id/brewery_map"
+        class="com.akausejr.crafty.app.BreweryMapFragment"
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <fragment
+        android:id="@+id/brewery_list"
+        class="com.akausejr.crafty.app.BreweryListFragment"
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <ProgressBar
+        android:id="@+id/progress"
+        style="?android:progressBarStyleLarge"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_gravity="center"
+
+        android:indeterminateOnly="true"
+        android:visibility="gone"/>
+</merge>

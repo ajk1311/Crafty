@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Crafty</string>
+    <string name="settings">Settings</string>
+
+    <!-- Error messages -->
+    <string name="location_unknown">Unknown location</string>
+    <string name="location_connection_failure">Failed to connect to location services</string>
+
+    <!-- Launch strings -->
+    <string name="location_settings_dialog_msg">Crafty uses your location to provide the best craft beer discovery experience. Enable your location?</string>
+    <string name="location_settings_dialog_go">Go to settings</string>
+    <string name="location_settings_dialog_no">No thanks</string>
+
+    <!-- Main Activity strings -->
+    <string name="menu_main_map_view">View on map</string>
+    <string name="menu_main_list_view">View as list</string>
+    <string name="menu_main_search">Search breweries</string>
+    <string name="main_activity_location_waiting">Waiting for location...</string>
+    <string name="main_activity_action_zoom_in">Zoom in</string>
+    <string name="main_activity_action_zoom_out">Zoom out</string>
+    <string name="main_activity_action_my_location">My location</string>
+    <string name="main_activity_action_map_key">Show map key</string>
+
+</resources>

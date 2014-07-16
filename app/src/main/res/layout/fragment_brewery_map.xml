@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Map goes here -->
+
+    <!-- TODO map key -->
+
+    <LinearLayout
+        android:id="@+id/btn_container"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_gravity="bottom"
+
+        android:gravity="center_vertical|right"
+        android:orientation="horizontal"
+        android:padding="@dimen/margin_xsmall">
+
+        <com.akausejr.crafty.widget.FabImageButton
+            android:id="@+id/btn_key"
+
+            android:layout_width="@dimen/fab_button_diameter_small"
+            android:layout_height="@dimen/fab_button_diameter_small"
+
+            android:layout_margin="@dimen/margin_xsmall"
+
+            android:contentDescription="@string/main_activity_action_map_key"
+            android:background="@drawable/fab_bg_accent"
+            android:src="@drawable/ic_info_mask"
+
+            android:elevation="@dimen/button_elevation"
+            android:stateListAnimator="@anim/button_raise" />
+
+        <com.akausejr.crafty.widget.FabImageButton
+            android:id="@+id/btn_my_location"
+
+            android:layout_width="@dimen/fab_button_diameter_small"
+            android:layout_height="@dimen/fab_button_diameter_small"
+
+            android:layout_margin="@dimen/margin_xsmall"
+
+            android:contentDescription="@string/main_activity_action_my_location"
+            android:background="@drawable/fab_bg_accent"
+            android:src="@drawable/ic_my_location"
+
+            android:elevation="@dimen/button_elevation"
+            android:stateListAnimator="@anim/button_raise"  />
+
+        <com.akausejr.crafty.widget.FabImageButton
+            android:id="@+id/btn_zoom_in"
+
+            android:layout_width="@dimen/fab_button_diameter_small"
+            android:layout_height="@dimen/fab_button_diameter_small"
+
+            android:layout_margin="@dimen/margin_xsmall"
+
+            android:contentDescription="@string/main_activity_action_zoom_in"
+            android:background="@drawable/fab_bg_accent"
+            android:src="@drawable/ic_plus"
+
+            android:elevation="@dimen/button_elevation"
+            android:stateListAnimator="@anim/button_raise" />
+
+        <com.akausejr.crafty.widget.FabImageButton
+            android:id="@+id/btn_zoom_out"
+
+            android:layout_width="@dimen/fab_button_diameter_small"
+            android:layout_height="@dimen/fab_button_diameter_small"
+
+            android:layout_margin="@dimen/margin_xsmall"
+
+            android:contentDescription="@string/main_activity_action_zoom_out"
+            android:background="@drawable/fab_bg_accent"
+            android:src="@drawable/ic_minus"
+
+            android:elevation="@dimen/button_elevation"
+            android:stateListAnimator="@anim/button_raise" />
+
+    </LinearLayout>
+</FrameLayout>

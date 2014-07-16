@@ -1,0 +1,78 @@
+apply plugin: 'com.android.application'
+
+def versionMajor = 1
+def versionMinor = 0
+def versionPatch = 0
+def versionBuild = 1
+
+def keystorePath = '../signing/crafty-release.keystore'
+def keystoreAlias = 'craftyreleasekey'
+def keystorePassword = 'cr4ft_B33R'
+
+android {
+    compileSdkVersion 'android-L'
+    buildToolsVersion "20.0.0"
+
+    defaultConfig {
+        applicationId "com.akausejr.crafty"
+        minSdkVersion 9
+        targetSdkVersion 'L'
+
+        versionCode versionMajor * 100000 + versionMinor * 10000 + versionPatch * 1000 + versionBuild
+        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+
+        buildConfigField "String", "BDB_BASE_URL", "\"http://api.brewerydb.com/v2\""
+        buildConfigField "String", "BDB_API_KEY", "\"e31fb9dc89cbf8c319a9103add90a643\""
+
+        buildConfigField "String", "GOOGLE_PLACES_BASE_URL", "\"https://maps.googleapis.com/maps/api/place\""
+        buildConfigField "String", "GOOGLE_PLACES_API_KEY", "\"AIzaSyDXPDc80tixkfmrcS2s-5VVg13oVtlg0Ro\""
+    }
+
+    signingConfigs {
+        release {
+            storeFile file(keystorePath)
+            storePassword keystorePassword
+            keyAlias keystoreAlias
+            keyPassword keystorePassword
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ".dev"
+        }
+
+        release {
+            signingConfig signingConfigs.release
+
+            // TODO come up with and enable rules
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    // TODO product flavors
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+dependencies {
+    // Google libraries
+    compile 'com.google.code.gson:gson:2.2.4'
+    compile 'com.android.support:support-v4:21.0.0-rc1'
+    compile 'com.android.support:appcompat-v7:21.0.0-rc1'
+    compile 'com.google.android.gms:play-services:5.0.77'
+    compile 'com.android.support:palette-v7:21.0.0-rc1'
+    compile 'com.android.support:recyclerview-v7:21.0.0-rc1'
+
+    // Square libraries
+    compile 'com.squareup.picasso:picasso:2.3.+'
+}

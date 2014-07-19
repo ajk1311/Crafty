@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Crafty.Base" parent="android:Theme.Material.Light.DarkActionBar">
+        <!-- Material specific -->
+        <item name="android:colorPrimary">@color/theme_default_primary</item>
+        <item name="android:colorPrimaryDark">@color/theme_default_primary_dark</item>
+        <item name="android:colorAccent">@color/theme_default_accent</item>
+        <item name="android:colorControlHighlight">@color/theme_default_accent_light</item>
+
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:statusBarColor">?android:colorPrimaryDark</item>
+        <item name="android:navigationBarColor">?android:colorPrimaryDark</item>
+
+        <item name="android:actionBarTheme">@style/Theme.ActionBar</item>
+        <!--/-->
+
+        <item name="android:colorBackground">@color/theme_background</item>
+
+        <item name="actionBarIconColor">@android:color/white</item>
+
+        <item name="android:actionBarStyle">@style/Widget.Crafty.Light.ActionBar</item>
+        <item name="android:dropDownListViewStyle">@style/Widget.Crafty.ListView.DropDown</item>
+    </style>
+
+    <style name="Theme.ActionBar" parent="">
+        <item name="android:colorControlNormal">?actionBarIconColor</item>
+        <item name="android:colorControlHighlight">@color/theme_default_accent_light</item>
+    </style>
+</resources>

@@ -1,15 +1,15 @@
 package com.akausejr.crafty.app;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.app.ActionBarActivity;
 
 import com.akausejr.crafty.R;
 import com.akausejr.crafty.util.PreferenceHelper;
@@ -22,7 +22,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
  * @author AJ Kause
  * Created on 7/7/14.
  */
-public class LaunchActivity extends ActionBarActivity {
+public class LaunchActivity extends Activity {
 
     /** Request code for resolving Play Services errors */
     private static final int RC_PLAY_SERVICES = 777;
@@ -90,7 +90,7 @@ public class LaunchActivity extends ActionBarActivity {
 
     private boolean checkForLocation() {
         if (!isLocationAvailable()) {
-            new LocationSettingsDialog().show(getSupportFragmentManager(), null);
+            new LocationSettingsDialog().show(getFragmentManager(), null);
             return false;
         }
         return true;

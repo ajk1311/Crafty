@@ -1,34 +1,39 @@
 package com.akausejr.crafty.app;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.app.ActionBar;
+import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.app.PendingIntent;
+import android.app.SearchManager;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.ConnectivityManager;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.akausejr.crafty.CraftyApp;
 import com.akausejr.crafty.R;
+import com.akausejr.crafty.model.LocationType;
 import com.akausejr.crafty.model.NamedLocation;
+import com.akausejr.crafty.provider.SearchSuggestionProvider;
 import com.akausejr.crafty.receiver.PassiveLocationReceiver;
 import com.akausejr.crafty.service.BreweryLocationUpdateService;
 import com.akausejr.crafty.service.UserActivityService;
-import com.akausejr.crafty.util.CompatUtil;
 import com.akausejr.crafty.util.DebugLog;
 import com.akausejr.crafty.util.GeocodeUtils;
+import com.akausejr.crafty.util.LoadPlaceCoordinatesTask;
 import com.akausejr.crafty.util.PreferenceHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -37,6 +42,7 @@ import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -46,7 +52,7 @@ import com.google.android.gms.maps.model.LatLng;
  * @author AJ Kause
  * Created on 7/7/2014
  */
-public class BreweryActivity extends ActionBarActivity implements LocationListener,
+public class BreweryActivity extends Activity implements LocationListener,
     GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
     BreweryMapFragment.BreweryMapController, BreweryListFragment.BreweryListController {
 
@@ -104,6 +110,9 @@ public class BreweryActivity extends ActionBarActivity implements LocationListen
     /** Flag indicating whether or not to fetch content for each location update */
     private boolean mTrackLocation = true;
 
+    /** Task that loads the coordinates for a place */
+    private LoadPlaceCoordinatesTask mPlacesTask;
+
     /** Notified when the user's detected activity changes */
     private BroadcastReceiver mActivityUpdateReceiver = new BroadcastReceiver() {
         @Override
@@ -144,9 +153,9 @@ public class BreweryActivity extends ActionBarActivity implements LocationListen
             .build();
 
         // The Fragments are added via xml, so we can just grab them here
-        mMapFragment = (BreweryMapFragment) getSupportFragmentManager()
+        mMapFragment = (BreweryMapFragment) getFragmentManager()
             .findFragmentById(R.id.brewery_map);
-        mListFragment = (BreweryListFragment) getSupportFragmentManager()
+        mListFragment = (BreweryListFragment) getFragmentManager()
             .findFragmentById(R.id.brewery_list);
 
         if (savedInstanceState != null) {
@@ -158,7 +167,7 @@ public class BreweryActivity extends ActionBarActivity implements LocationListen
 
         // We always need to show and hide the right fragment, whether a config change occurred
         // or not. If the Activity is starting for the first time, mCurrentView's default is used
-        final FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
+        final FragmentTransaction tx = getFragmentManager().beginTransaction();
         switch (mCurrentView) {
             case VIEW_MAP:
                 tx.show(mMapFragment).hide(mListFragment).commit();
@@ -178,6 +187,48 @@ public class BreweryActivity extends ActionBarActivity implements LocationListen
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (SearchSuggestionProvider.ACTION_SEARCH_SUGGESTION.equals(intent.getAction())) {
+            // If this activity got a search suggestion, execute the "search."
+            // In our case, we just move the map to the loaded coordinates and let
+            // the map fragment take care of updating the content
+            final Uri suggestionUri = intent.getData();
+            switch (getContentResolver().getType(suggestionUri)) {
+                case SearchSuggestionProvider.PLACES_CONTENT_TYPE:
+                    final String placeId = suggestionUri.getLastPathSegment();
+                    moveMapToPlace(placeId);
+                    break;
+                case SearchSuggestionProvider.BREWERIES_CONTENT_TYPE:
+                    final String breweryId = suggestionUri.getLastPathSegment();
+                    showBreweryDetails(breweryId);
+                    break;
+            }
+        }
+    }
+
+    private void moveMapToPlace(String placeId) {
+        showProgress(true);
+        mPlacesTask = new LoadPlaceCoordinatesTask().execute(placeId,
+            new LoadPlaceCoordinatesTask.OnCoordinatesLoadedListener() {
+                @Override
+                public void onCoordinatesLoaded(LatLng coordinates) {
+                    if (coordinates == null) {
+                        return;
+                    }
+                    mMapFragment.getMap().animateCamera(CameraUpdateFactory
+                        .newLatLngZoom(coordinates, BreweryMapFragment.DEFAULT_ZOOM));
+                    showProgress(false);
+                }
+            });
+    }
+
+    private void showBreweryDetails(String breweryId) {
+        Toast.makeText(getApplicationContext(),
+            "TODO: fetch and display brewery details", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
@@ -188,8 +239,9 @@ public class BreweryActivity extends ActionBarActivity implements LocationListen
             // This would normally only happen the very first time the user opens the app
             Toast.makeText(this, R.string.main_activity_location_waiting, Toast.LENGTH_SHORT)
                 .show();
-        } else {
+        } else if (mTrackLocation) {
             // Fetch fresh results based on the last known location
+            setTitle(recentLocation.getName());
             final LatLng ll = recentLocation.toLatLng();
             DebugLog.w(TAG, "calling update service from onResume() at " + System.currentTimeMillis());
             refreshLocations(ll, mMapFragment.getSearchRadius(), false);
@@ -211,6 +263,10 @@ public class BreweryActivity extends ActionBarActivity implements LocationListen
             mPreferenceHelper.setAppIsInBackground(true);
             setActiveLocationListenerEnabled(false);
             setActivityRecognitionEnabled(false);
+        }
+
+        if (mPlacesTask != null && mPlacesTask.getStatus() != AsyncTask.Status.FINISHED) {
+            mPlacesTask.release();
         }
     }
 
@@ -315,6 +371,24 @@ public class BreweryActivity extends ActionBarActivity implements LocationListen
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
+
+        final MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setSearchableInfo(((SearchManager) getSystemService(SEARCH_SERVICE))
+            .getSearchableInfo(getComponentName()));
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                return false;
+            }
+
+            @Override
+            public boolean onSuggestionClick(int position) {
+                searchItem.collapseActionView();
+                return false;
+            }
+        });
+
         mViewMenuItem = menu.findItem(R.id.action_change_view);
         switch (mCurrentView) {
             case VIEW_MAP:
@@ -335,12 +409,6 @@ public class BreweryActivity extends ActionBarActivity implements LocationListen
             case R.id.action_change_view:
                 handleViewChange();
                 return true;
-            case R.id.action_search:
-                // TODO show search
-                return true;
-            case R.id.action_check_passive_state:
-                checkPassiveReceiverState();
-                return true;
             case R.id.action_settings:
                 // TODO show settings
                 return true;
@@ -348,21 +416,9 @@ public class BreweryActivity extends ActionBarActivity implements LocationListen
         return super.onOptionsItemSelected(item);
     }
 
-    private void checkPassiveReceiverState() {
-        try {
-            final ComponentName passiveReceiver =
-                new ComponentName(this, PassiveLocationReceiver.class);
-            final ActivityInfo info = getPackageManager().getReceiverInfo(passiveReceiver, 0);
-            final String message = "Passive receiver is " + (info.enabled ? "enabled" : "disabled");
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        } catch (PackageManager.NameNotFoundException e) {
-            // Ignore since we know we will find it
-        }
-    }
-
     /** Toggle the current view from map to list or vice-versa */
     private void handleViewChange() {
-        final FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
+        final FragmentTransaction tx = getFragmentManager().beginTransaction();
         switch (mCurrentView) {
             case VIEW_MAP:
                 mCurrentView = VIEW_LIST;
@@ -384,7 +440,7 @@ public class BreweryActivity extends ActionBarActivity implements LocationListen
     @Override
     public void setTitle(CharSequence title) {
         mCurrentTitle = title;
-        final ActionBar bar = getSupportActionBar();
+        final ActionBar bar = getActionBar();
         if (bar == null) {
             super.setTitle(title);
             return;
@@ -414,8 +470,45 @@ public class BreweryActivity extends ActionBarActivity implements LocationListen
     }
 
     @Override
-    public void searchArea(NamedLocation location, double radius, boolean enableTracking) {
-        mTrackLocation = enableTracking;
+    public void onBrewerySelectedFromList(String breweryId) {
+        // TODO show brewery details
+    }
+
+    @Override
+    public void onBrewerySelectedFromMap(String breweryId) {
+        // TODO show brewery details
+    }
+
+    @Override
+    public void onLocationFilterTypeSelectedFromList(LocationType filterType) {
+        mMapFragment.setCurrentLocationFilterType(filterType);
+    }
+
+    @Override
+    public void onLocationFilterTypeSelectedFromMap(LocationType filterType) {
+        mListFragment.setCurrentLocationFilterType(filterType);
+    }
+
+    @Override
+    public void searchArea(NamedLocation location, double radius, boolean isMyLocation) {
+        if (isMyLocation) {
+            // If the map's 'my location' button was pressed,
+            // then definitely enable location tracking
+            mTrackLocation = true;
+        } else if (mTrackLocation) {
+            // Otherwise, we need to get the distance from the search location to the
+            // current location to determine if the user is still using his or her current location
+            final Location currentLocation = new Location("current");
+            currentLocation.setLatitude(mPreferenceHelper.getRecentLocation().latitude());
+            currentLocation.setLongitude(mPreferenceHelper.getRecentLocation().longitude());
+
+            final Location searchLocation = new Location("search");
+            searchLocation.setLatitude(location.latitude());
+            searchLocation.setLongitude(location.longitude());
+
+            mTrackLocation = currentLocation.distanceTo(searchLocation) <
+                CraftyApp.MINIMUM_SEARCH_DISTANCE;
+        }
         setTitle(location.getName());
         DebugLog.w(TAG, "calling update service from searchArea() at " + System.currentTimeMillis());
         refreshLocations(location.toLatLng(), radius, true);
@@ -438,16 +531,15 @@ public class BreweryActivity extends ActionBarActivity implements LocationListen
             if (show) {
                 progress.setVisibility(View.VISIBLE);
             }
-            ViewCompat.setAlpha(progress, show ? 0 : 1);
-            ViewCompat.animate(progress).alpha(show ? 1 : 0)
-                .setListener(new CompatUtil.AnimatorListenerAdapterCompat() {
-                    @Override
-                    public void onAnimationEnd(View view) {
-                        if (!show) {
-                            progress.setVisibility(View.INVISIBLE);
-                        }
+            progress.setAlpha(show ? 0 : 1);
+            progress.animate().alpha(show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    if (!show) {
+                        progress.setVisibility(View.INVISIBLE);
                     }
-                });
+                }
+            });
         } else {
             progress.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
         }

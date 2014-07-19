@@ -2,6 +2,7 @@ package com.akausejr.crafty.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Location;
 
 import com.akausejr.crafty.model.NamedLocation;
 import com.google.android.gms.location.DetectedActivity;
@@ -20,12 +21,13 @@ public class PreferenceHelper {
     private enum Keys {
         OPENED_ONCE,
         IN_BACKGROUND,
-        TRACK_USER_LOCATION,
         RECENT_LOCATION_LAT,
         RECENT_LOCATION_LNG,
         RECENT_LOCATION_NAME,
         RECENT_USER_ACTIVITY,
-        LAST_UPDATE_TIME
+        LAST_UPDATE_TIME,
+        LAST_UPDATE_LAT,
+        LAST_UPDATE_LNG
     }
 
     private SharedPreferences mPreferences;
@@ -84,5 +86,22 @@ public class PreferenceHelper {
 
     public void setLastUpdateTimeToNow() {
         mEditor.putLong(Keys.LAST_UPDATE_TIME.name(), System.currentTimeMillis()).apply();
+    }
+
+    public Location getLastUpdateLocation() {
+        if (mPreferences.contains(Keys.LAST_UPDATE_LAT.name()) &&
+            mPreferences.contains(Keys.LAST_UPDATE_LNG.name())) {
+            final Location location = new Location("last_update");
+            location.setLatitude(mPreferences.getFloat(Keys.LAST_UPDATE_LAT.name(), 0));
+            location.setLongitude(mPreferences.getFloat(Keys.LAST_UPDATE_LNG.name(), 0));
+            return location;
+        }
+        return null;
+    }
+
+    public void saveLastUpdateLocation(Location location) {
+        mEditor.putFloat(Keys.LAST_UPDATE_LAT.name(), (float) location.getLatitude())
+            .putFloat(Keys.LAST_UPDATE_LNG.name(), (float) location.getLongitude())
+            .apply();
     }
 }

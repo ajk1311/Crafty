@@ -45,7 +45,8 @@ public class BreweryLocationContract {
     public static String BREWERY_WEBSITE = "breweryWebsite";
 
     public static final String DISTANCE_SORT = DISTANCE + " ASC";
-    public static final String NAME_SORT = NAME + " COLLATE NOCASE ASC";
+    public static final String NAME_SORT = BREWERY_NAME + " COLLATE NOCASE ASC";
+    public static final String TYPE_SORT = LOCATION_TYPE + " COLLATE NOCASE ASC";
 
     public static final String DEFAULT_SORT = DISTANCE_SORT;
 

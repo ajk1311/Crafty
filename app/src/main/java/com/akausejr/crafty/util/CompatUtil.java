@@ -1,5 +1,6 @@
 package com.akausejr.crafty.util;
 
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.view.View;
@@ -80,6 +81,15 @@ public class CompatUtil {
 
         @Override
         public void onAnimationCancel(View view) {
+        }
+    }
+
+    @SuppressWarnings("NewApi")
+    public static void setViewBackground(View view, Drawable drawable) {
+        if (CompatUtil.isJellyBean()) {
+            view.setBackground(drawable);
+        } else {
+            view.setBackgroundDrawable(drawable);
         }
     }
 }

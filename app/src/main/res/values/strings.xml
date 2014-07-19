@@ -23,4 +23,28 @@
     <string name="main_activity_action_my_location">My location</string>
     <string name="main_activity_action_map_key">Show map key</string>
 
+    <string name="brewery_list_empty">No matching\nbreweries nearby</string>
+
+    <string name="feet_away">%.0f ft away</string>
+    <string name="miles_away">%.1f mi away</string>
+
+    <!-- Location type strings -->
+    <string name="all_types">All Types</string>
+    <string name="nano_brewery">Nano Breweries</string>
+    <string name="office">Offices</string>
+    <string name="tasting_room">Tasting Rooms</string>
+    <string name="micro_brewery">Micro Breweries</string>
+    <string name="production_facility">Production Facilities</string>
+    <string name="restaurant_ale_house">Restaurants / Ale Houses</string>
+    <string name="macro_breweries">Macro Breweries</string>
+    <string name="brewpub">Brewpubs</string>
+
+    <!-- Ordering strings -->
+    <string-array name="sort_order">
+        <item>Closest</item>
+        <item>Alphabetical</item>
+        <item>By Type</item>
+    </string-array>
+
+    <string name="search_hint">Search city or brewery</string>
 </resources>

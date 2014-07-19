@@ -6,6 +6,15 @@
     <dimen name="fab_button_diameter">56dp</dimen>
     <dimen name="fab_button_diameter_small">40dp</dimen>
 
+    <dimen name="list_item_bg_padding">1dp</dimen>
+    <dimen name="list_item_height">72dp</dimen>
+    <dimen name="list_image_height">40dp</dimen>
+    <dimen name="list_image_margin_left">16dp</dimen>
+    <dimen name="list_item_content_margin_left">72dp</dimen>
+    <dimen name="list_item_content_margin_right">16dp</dimen>
+    <dimen name="list_item_text_size_primary">14sp</dimen>
+    <dimen name="list_item_text_size_secondary">12sp</dimen>
+
     <dimen name="button_elevation">2dp</dimen>
     <dimen name="button_elevation_pressed">4dp</dimen>
 
@@ -14,4 +23,13 @@
     <dimen name="margin_medium">16dp</dimen>
     <dimen name="margin_small">14dp</dimen>
     <dimen name="margin_xsmall">8dp</dimen>
+
+    <dimen name="large_letter_size">30sp</dimen>
+
+    <dimen name="header_height">48dp</dimen>
+
+    <dimen name="type_indicator_size">12dp</dimen>
+
+    <dimen name="auto_text_view_min_text_size">10sp</dimen>
+    <dimen name="auto_text_view_text_size_increment">1sp</dimen>
 </resources>

@@ -26,7 +26,8 @@ public class CraftyContentProvider extends ContentProvider {
 
     private static final String TAG = CraftyContentProvider.class.getSimpleName();
 
-    public static final String CONTENT_AUTHORITY = "com.akausejr.crafty.provider";
+    public static final String CONTENT_AUTHORITY =
+        "com.akausejr.crafty.provider.CraftyContentProvider";
 
     /* package */ static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 

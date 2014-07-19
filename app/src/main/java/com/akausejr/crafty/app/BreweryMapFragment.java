@@ -1,36 +1,49 @@
 package com.akausejr.crafty.app;
 
 import android.app.Activity;
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
 import android.provider.BaseColumns;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.akausejr.crafty.CraftyApp;
 import com.akausejr.crafty.R;
+import com.akausejr.crafty.graphics.CircleColorLetterDrawable;
+import com.akausejr.crafty.model.BreweryLocation;
+import com.akausejr.crafty.model.LocationType;
 import com.akausejr.crafty.model.NamedLocation;
 import com.akausejr.crafty.provider.BreweryLocationContract;
+import com.akausejr.crafty.util.CircleTransform;
 import com.akausejr.crafty.util.CompatUtil;
 import com.akausejr.crafty.util.GeocodeUtils;
 import com.akausejr.crafty.util.PreferenceHelper;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -42,17 +55,31 @@ import java.util.Map;
  * @author AJ Kause
  * Created on 7/7/14.
  */
-public class BreweryMapFragment extends SupportMapFragment implements
-    LoaderManager.LoaderCallbacks<Cursor> {
+public class BreweryMapFragment extends MapFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    /**
-     * {@link android.app.Activity}s and {@link android.app.Fragment}s that implement this interface
-     * are responsible for providing brewery data to this Fragment based on these methods
-     */
+    /** Controller interface for handling map interaction */
     public static interface BreweryMapController {
 
-        /** Tells the controller to use the provided area as the search parameters */
-        public void searchArea(NamedLocation location, double radius, boolean enableTracking);
+        /**
+         * Tells the controller to use the provided area as the search parameters
+         * @param location The location to search
+         * @param radius The search radius
+         * @param isMyLocation {@code true} if {@code location} is the map's 'my location'
+         */
+        public void searchArea(NamedLocation location, double radius, boolean isMyLocation);
+
+        /**
+         * Tells the controller to react to a brewery selection
+         * @param breweryId The id of the brewery location
+         */
+        public void onBrewerySelectedFromMap(String breweryId);
+
+        /**
+         * Tells the controller that the user wants to filter content. All other views should
+         * be updated accordingly
+         * @param filterType The type of location to filter for
+         */
+        public void onLocationFilterTypeSelectedFromMap(LocationType filterType);
     }
 
     /** Used for prefixing and debugging */
@@ -60,9 +87,10 @@ public class BreweryMapFragment extends SupportMapFragment implements
 
     // Saved state keys
     private static final String KEY_START_LOCATION = TAG + ".START_LOCATION";
+    private static final String KEY_CURRENT_ZOOM = TAG + ".CURRENT_ZOOM";
 
     /** The zoom level for zooming to the user's current location */
-    private static final float DEFAULT_ZOOM = 10f;
+    public static final float DEFAULT_ZOOM = 10f;
 
     /** The columns to fetch */
     private static final String[] QUERY_PROJECTION = new String[] {
@@ -71,7 +99,10 @@ public class BreweryMapFragment extends SupportMapFragment implements
         BreweryLocationContract.BREWERY_NAME,
         BreweryLocationContract.LATITUDE,
         BreweryLocationContract.LONGITUDE,
-        BreweryLocationContract.FULL_ADDRESS
+        BreweryLocationContract.DISTANCE,
+        BreweryLocationContract.FULL_ADDRESS,
+        BreweryLocationContract.LOCATION_TYPE,
+        BreweryLocationContract.BREWERY_ICON_IMAGE_URL
     };
 
     /** Only display locations that are verified by brewerydb.com */
@@ -82,7 +113,10 @@ public class BreweryMapFragment extends SupportMapFragment implements
     private static final int NAME_INDEX = 2;
     private static final int LATITUDE_INDEX = 3;
     private static final int LONGITUDE_INDEX = 4;
-    private static final int ADDRESS_INDEX = 5;
+    private static final int DISTANCE_INDEX = 5;
+    private static final int ADDRESS_INDEX = 6;
+    private static final int LOCATION_TYPE_INDEX = 7;
+    private static final int ICON_URL_INDEX = 8;
 
     /** Keeps references to the markers on the map so we have the data to use when one is clicked */
     private Map<Marker, BreweryLocationRecord> mMarkerMap = new LinkedHashMap<>();
@@ -100,7 +134,10 @@ public class BreweryMapFragment extends SupportMapFragment implements
     private CameraPosition mPreviousCameraPosition;
 
     /** Set to true to override any condition checking when the camera moves  */
-    private boolean mOverrideBoundChecks = false;
+    private boolean mMyLocationPressed = false;
+
+    /** Displays the options for filtering content by location type */
+    private Spinner mTypeSpinner;
 
     /**
      * Notified when the map camera changes to determine if we should fetch results based on
@@ -123,10 +160,51 @@ public class BreweryMapFragment extends SupportMapFragment implements
     /** Set the animation flag so that results aren't fetched every time a marker is clicked */
     private final GoogleMap.OnMarkerClickListener mMarkerClickListener =
         new GoogleMap.OnMarkerClickListener() {
+
+            ImageView mDummy;
+
             @Override
-            public boolean onMarkerClick(Marker marker) {
+            public boolean onMarkerClick(final Marker marker) {
                 mCameraAnimating = true;
+
+                final BreweryLocationRecord record = mMarkerMap.get(marker);
+
+                // First, load the image. This will ensure that the icon is in Picasso's cache
+                // when we go to load it in the info window adapter
+                if (mDummy == null) {
+                    // Use a dummy ImageView so we can get a Callback on the main thread
+                    mDummy = new ImageView(getActivity());
+                }
+                Picasso.with(getActivity()).load(record.iconUrl).into(mDummy, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        // If the info window gets hidden before the image is loaded, we don't
+                        // want to re-show the window and disrupt the user
+                        if (marker.isInfoWindowShown()) {
+                            marker.showInfoWindow();
+                        }
+                    }
+
+                    @Override
+                    public void onError() {
+                        if (marker.isInfoWindowShown()) {
+                            marker.showInfoWindow();
+                        }
+                    }
+                });
                 return false;
+            }
+        };
+
+    /** Notifies the controller that a brewery was selected */
+    private final GoogleMap.OnInfoWindowClickListener mInfoWindowClickListener =
+        new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                final BreweryLocationRecord record = mMarkerMap.get(marker);
+                if (mController != null) {
+                    mController.onBrewerySelectedFromMap(record.id);
+                }
             }
         };
 
@@ -141,15 +219,29 @@ public class BreweryMapFragment extends SupportMapFragment implements
                 case R.id.btn_zoom_out:
                     zoomOut();
                     break;
-                case R.id.btn_key:
-                    showKey();
-                    break;
                 case R.id.btn_my_location:
                     zoomToMyLocation();
                     break;
             }
         }
     };
+
+    /** Responds to user clicks on the type filter, thus filtering search results by type */
+    private AdapterView.OnItemSelectedListener mTypeSelectedListener =
+        new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                final LocationType filterType = (LocationType) parent.getItemAtPosition(position);
+                setCurrentLocationFilterType(filterType.type, true);
+                if (mController != null) {
+                    mController.onLocationFilterTypeSelectedFromMap(filterType);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        };
 
     @Override
     public void onAttach(Activity activity) {
@@ -184,12 +276,16 @@ public class BreweryMapFragment extends SupportMapFragment implements
         final ViewGroup root = (ViewGroup) inflater
                 .inflate(R.layout.fragment_brewery_map, container, false);
         // Add the map view below all of our custom views
-        root.addView(superView, 0);
+        ((ViewGroup) root.findViewById(R.id.map_container)).addView(superView, 0);
 
         root.findViewById(R.id.btn_zoom_in).setOnClickListener(mButtonClickListener);
         root.findViewById(R.id.btn_zoom_out).setOnClickListener(mButtonClickListener);
-        root.findViewById(R.id.btn_key).setOnClickListener(mButtonClickListener);
         root.findViewById(R.id.btn_my_location).setOnClickListener(mButtonClickListener);
+
+        mTypeSpinner = (Spinner) root.findViewById(R.id.type_spinner);
+        mTypeSpinner.setAdapter(new BreweryLocationTypeSpinnerAdapter(getActivity()));
+        mTypeSpinner.setOnItemSelectedListener(mTypeSelectedListener);
+
         return root;
     }
 
@@ -209,15 +305,19 @@ public class BreweryMapFragment extends SupportMapFragment implements
             final LatLng startLocation = savedInstanceState == null ?
                 mPreferenceHelper.getRecentLocation().toLatLng() :
                 (LatLng) savedInstanceState.get(KEY_START_LOCATION);
+            final float currentZoom = savedInstanceState == null ?
+                DEFAULT_ZOOM : savedInstanceState.getFloat(KEY_CURRENT_ZOOM);
             if (startLocation == null) {
                 // TODO handle first app open
             } else {
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(startLocation, DEFAULT_ZOOM));
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(startLocation, currentZoom));
                 mPreviousCameraPosition = map.getCameraPosition();
             }
 
             map.setOnCameraChangeListener(mCameraChangeListener);
             map.setOnMarkerClickListener(mMarkerClickListener);
+            map.setOnInfoWindowClickListener(mInfoWindowClickListener);
+            map.setInfoWindowAdapter(new BreweryLocationInfoWindowAdapter(getActivity()));
         }
 
         // Loads locations from the content provider. The loader manager will be notified whenever
@@ -228,6 +328,7 @@ public class BreweryMapFragment extends SupportMapFragment implements
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putFloat(KEY_CURRENT_ZOOM, getMap().getCameraPosition().zoom);
         outState.putParcelable(KEY_START_LOCATION, getMap().getCameraPosition().target);
     }
 
@@ -257,14 +358,12 @@ public class BreweryMapFragment extends SupportMapFragment implements
             Math.abs(position.zoom - mPreviousCameraPosition.zoom) >
                 CraftyApp.MINIMUM_ZOOM_CHANGE;
 
-        if (mOverrideBoundChecks || (zoomedEnough && !movedEnough)) {
-            // If the user just zoomed, we want to fetch results based on the current location,
-            // but with the updated search radius. We also want to (re)enable location tracking
-            final NamedLocation currentLocation = mPreferenceHelper.getRecentLocation();
-            mController.searchArea(currentLocation, getSearchRadius(), true);
-        } else if (movedEnough) {
-            // Otherwise, we want to stop tracking location and get search results based on
-            // the current map position
+        final boolean shouldLoad = zoomedEnough || movedEnough;
+
+        if (mMyLocationPressed) {
+            final NamedLocation recentLocation = mPreferenceHelper.getRecentLocation();
+            mController.searchArea(recentLocation, getSearchRadius(), true);
+        } else if (shouldLoad) {
             GeocodeUtils.reverseGeocode(getActivity(), position.target,
                 new GeocodeUtils.LocationNameListener() {
                     @Override
@@ -282,17 +381,23 @@ public class BreweryMapFragment extends SupportMapFragment implements
                     }
                 });
         }
-        // Finally, save the new position
+        // Finally, restore state
         mPreviousCameraPosition = position;
-        mOverrideBoundChecks = false;
+        mMyLocationPressed = false;
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String selection = QUERY_SELECTION;
+        final LocationType filterType = (LocationType) mTypeSpinner.getSelectedItem();
+        if (!TextUtils.isEmpty(filterType.type)) {
+            selection += " AND " +
+                BreweryLocationContract.LOCATION_TYPE + "=\"" + filterType.type + '"';
+        }
         return new CursorLoader(getActivity(),
             BreweryLocationContract.CONTENT_URI,
             QUERY_PROJECTION,
-            QUERY_SELECTION,
+            selection,
             null,
             null);
     }
@@ -310,13 +415,23 @@ public class BreweryMapFragment extends SupportMapFragment implements
             // that corresponds to a map marker
             final BreweryLocationRecord record = new BreweryLocationRecord(
                 cursor.getString(ID_INDEX),
-                cursor.getDouble(LATITUDE_INDEX),
-                cursor.getDouble(LONGITUDE_INDEX));
-            final Marker marker = map.addMarker(new MarkerOptions()
-                .title(cursor.getString(NAME_INDEX))
-                .snippet(cursor.getString(ADDRESS_INDEX))
-                .position(new LatLng(record.lat, record.lng)));
-                // TODO icon
+                cursor.getString(NAME_INDEX),
+                cursor.getString(ADDRESS_INDEX),
+                cursor.getString(ICON_URL_INDEX),
+                cursor.getString(LOCATION_TYPE_INDEX),
+                cursor.getDouble(DISTANCE_INDEX));
+            final MarkerOptions ops = new MarkerOptions()
+                .position(new LatLng(cursor.getDouble(LATITUDE_INDEX),
+                    cursor.getDouble(LONGITUDE_INDEX)));
+
+            // Assign our custom marker icon if one applies
+            final int markerResId = BreweryLocation.getMarkerResIdForType(record.type);
+            if (markerResId > 0) {
+                ops.icon(BitmapDescriptorFactory.fromResource(markerResId));
+            }
+
+            // Plot the marker
+            final Marker marker = map.addMarker(ops);
             mMarkerMap.put(marker, record);
         }
     }
@@ -332,57 +447,6 @@ public class BreweryMapFragment extends SupportMapFragment implements
             entry.getKey().remove();
         }
         mMarkerMap.clear();
-    }
-
-    /**
-     * Calculates the appropriate bounds for the map that would encompass every marker.
-     * This method should only be called if mNeedsFitting is true
-     */
-    private void zoomToFitMarkers() {
-        mCameraAnimating = true;
-
-        if (mMarkerMap.isEmpty()) {
-            final NamedLocation recentLocation = mPreferenceHelper.getRecentLocation();
-            getMap().animateCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(recentLocation.latitude(), recentLocation.longitude()), DEFAULT_ZOOM));
-            return;
-        }
-
-        final LatLng centerLL = getMap().getCameraPosition().target;
-        final Location center = new Location("center");
-        center.setLatitude(centerLL.latitude);
-        center.setLongitude(centerLL.longitude);
-
-        // First, we need the farthest marker
-        Location current = new Location("tmp");
-        LatLng farthest = centerLL;
-        double maxDistance = 0.0;
-
-        for (Map.Entry<Marker, BreweryLocationRecord> entry : mMarkerMap.entrySet()) {
-            final BreweryLocationRecord brewery = entry.getValue();
-            current.setLatitude(brewery.lat);
-            current.setLongitude(brewery.lng);
-            final double distance = center.distanceTo(current);
-            if (distance > maxDistance) {
-                maxDistance = distance;
-                farthest = new LatLng(current.getLatitude(), current.getLongitude());
-            }
-        }
-
-        // Next, we invert the line from the center to the farthest marker to make a rect
-        final double dLat = Math.abs(center.getLatitude() - farthest.latitude);
-        final double dLng = Math.abs(center.getLongitude() - farthest.longitude);
-        final double iLat = (farthest.latitude < center.getLatitude()) ?
-            center.getLatitude() + dLat : center.getLatitude() - dLat;
-        final double iLng = (farthest.longitude < center.getLongitude()) ?
-            center.getLongitude() + dLng : center.getLongitude() - dLng;
-
-        // Finally, zoom the map accordingly
-        getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds.Builder()
-            .include(farthest)
-            .include(new LatLng(iLat, iLng))
-            .build(),
-            100));
     }
 
     /** Zooms the map by 1 level */
@@ -403,6 +467,40 @@ public class BreweryMapFragment extends SupportMapFragment implements
         map.animateCamera(CameraUpdateFactory.zoomOut());
     }
 
+    /**
+     * Filters the content based on the given type
+     * @param filterType The type to filter by
+     */
+    public void setCurrentLocationFilterType(LocationType filterType) {
+        setCurrentLocationFilterType(filterType.type, false);
+    }
+
+    /**
+     * Filters the content based on the given type
+     * @param filterType The type to filter by
+     * @param fromSelf {@code true} if this instance called the method
+     */
+    private void setCurrentLocationFilterType(String filterType, boolean fromSelf) {
+        if (!fromSelf) {
+            mTypeSpinner.setSelection(getIndexForType(filterType));
+        }
+        getLoaderManager().restartLoader(0, null, this);
+    }
+
+    /**
+     * @param filterType The location type to filter by
+     * @return The index in the Spinner of the given type
+     */
+    private int getIndexForType(String filterType) {
+        for (int i = 0, sz = mTypeSpinner.getAdapter().getCount(); i < sz; i++) {
+            final LocationType type = (LocationType) mTypeSpinner.getAdapter().getItem(i);
+            if (type.type.equals(filterType)) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
     /** Zooms to the current location, re-enables location tracking, and updates the content */
     private void zoomToMyLocation() {
         final GoogleMap map = getMap();
@@ -411,7 +509,7 @@ public class BreweryMapFragment extends SupportMapFragment implements
             // go ahead and return
             return;
         }
-        mOverrideBoundChecks = true;
+        mMyLocationPressed = true;
         final NamedLocation recentLocation = mPreferenceHelper.getRecentLocation();
         map.animateCamera(CameraUpdateFactory
             .newLatLngZoom(recentLocation.toLatLng(), DEFAULT_ZOOM));
@@ -458,23 +556,86 @@ public class BreweryMapFragment extends SupportMapFragment implements
         }
     }
 
-    private void showKey() {
-        if (CompatUtil.isLPreview()) {
-            // TODO circular reveal key
-        } else {
-            // TODO scale up key
-        }
-    }
-
     /** Stores information about a brewery to be retrieved from map markers */
     private class BreweryLocationRecord {
         public final String id;
-        public final double lat;
-        public final double lng;
-        public BreweryLocationRecord(String id, double lat, double lng) {
+        public final String name;
+        public final String address;
+        public final String iconUrl;
+        public final String type;
+        public final double distance;
+        public BreweryLocationRecord(String id, String name, String address,
+                                     String iconUrl, String type, double distance) {
             this.id = id;
-            this.lat = lat;
-            this.lng = lng;
+            this.name = name;
+            this.address = address;
+            this.iconUrl = iconUrl;
+            this.type = type;
+            this.distance = distance;
+        }
+    }
+
+    /** Custom info window for showing brewery details when a map marker is clicked */
+    private class BreweryLocationInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
+        private static final double FEET_IN_METER = 3.28084;
+
+        private static final double FEET_IN_MILE = 5280;
+
+        // Format strings for different distances
+        private final String mFeetFormatString;
+        private final String mMilesFormatString;
+
+        /** Each brewery icon is transformed into a circle */
+        private final Transformation mCircleTransform;
+
+        public BreweryLocationInfoWindowAdapter(Context context) {
+            mFeetFormatString = context.getString(R.string.feet_away);
+            mMilesFormatString = context.getString(R.string.miles_away);
+            mCircleTransform = new CircleTransform(getResources()
+                .getDimensionPixelSize(R.dimen.list_item_bg_padding));
+        }
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            final View view = LayoutInflater.from(getActivity())
+                .inflate(R.layout.brewery_info_window, null);
+            final BreweryLocationRecord record = mMarkerMap.get(marker);
+
+            // Icon
+            final ImageView icon = (ImageView) view.findViewById(R.id.brewery_icon);
+            CompatUtil.setViewBackground(icon, new CircleColorLetterDrawable(getResources(),
+                BreweryLocation.getColorResIdForType(record.type), record.name.charAt(0)));
+            Picasso.with(getActivity()).load(record.iconUrl).transform(mCircleTransform).into(icon);
+
+            // Name
+            ((TextView) view.findViewById(R.id.brewery_name)).setText(record.name);
+
+            // Address
+            ((TextView) view.findViewById(R.id.brewery_address)).setText(record.address);
+
+            // Distance
+            ((TextView) view.findViewById(R.id.brewery_distance))
+                .setText(distanceString(record.distance));
+
+            return view;
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+           return null;
+        }
+
+        /**
+         * @param meters The distance in meters
+         * @return The string to display given a brewery's distance from the search location
+         */
+        private String distanceString(double meters) {
+            final double feet = meters * FEET_IN_METER;
+            if (feet > 1000) {
+                final double miles = feet / FEET_IN_MILE;
+                return String.format(mMilesFormatString, miles);
+            }
+            return String.format(mFeetFormatString, feet);
         }
     }
 }

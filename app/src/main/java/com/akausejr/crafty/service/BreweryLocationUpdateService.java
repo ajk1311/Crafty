@@ -101,11 +101,18 @@ public class BreweryLocationUpdateService extends IntentService {
             final double radius = intent.getDoubleExtra(EXTRA_RADIUS,
                 CraftyApp.DEFAULT_SEARCH_RADIUS);
 
+            final Location lastUpdateLocation = prefs.getLastUpdateLocation();
+            final Location updateLocation = new Location("current_update");
+            updateLocation.setLatitude(location.latitude);
+            updateLocation.setLongitude(location.longitude);
+
             if (intent.getBooleanExtra(EXTRA_FORCED, false) ||
-                prefs.getLastUpdateTime() < System.currentTimeMillis() - CraftyApp.MAX_UPDATE_TIME) {
+                (prefs.getLastUpdateTime() < System.currentTimeMillis() - CraftyApp.MAX_UPDATE_TIME &&
+                lastUpdateLocation.distanceTo(updateLocation) >= CraftyApp.MINIMUM_SEARCH_DISTANCE)) {
                 // If the service was requested to force an update or we have waited long enough
                 try {
                     updateBreweryLocations(location, radius);
+                    prefs.saveLastUpdateLocation(updateLocation);
                     prefs.setLastUpdateTimeToNow();
                 } catch (Exception e) {
                     DebugLog.w(TAG, "Locations update failed");
@@ -244,9 +251,12 @@ public class BreweryLocationUpdateService extends IntentService {
     private Map<String, BreweryLocation> getRemoteLocations(double lat, double lng, double radius)
     throws IOException {
         // Construct the url for searching breweries
-        final String searchUrl = BuildConfig.BDB_BASE_URL + "/search/geo/point?" +
-            "key=" + BuildConfig.BDB_API_KEY + "&lat=" + lat + "&lng=" + lng +
-            "&radius=" + radius / 1000 + "&unit=km";
+        final String searchUrl = BuildConfig.BDB_BASE_URL + "/search/geo/point" +
+            "?key=" + BuildConfig.BDB_API_KEY +
+            "&lat=" + lat +
+            "&lng=" + lng +
+            "&radius=" + radius / 1000 +
+            "&unit=km";
         DebugLog.d(TAG, "Search url: " + searchUrl);
 
         // Open the connection

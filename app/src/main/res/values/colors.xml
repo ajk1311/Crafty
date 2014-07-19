@@ -10,4 +10,26 @@
 
     <color name="yellow_light">#fffde7</color>
 
+    <color name="red">#e51c23</color>
+    <color name="deep_purple">#673ab7</color>
+    <color name="blue">#5677fc</color>
+    <color name="light_blue">#03a9f4</color>
+    <color name="light_green">#8bc34a</color>
+    <color name="yellow">#ffeb3b</color>
+    <color name="deep_orange">#ff5722</color>
+    <color name="blue_grey">#607d8b</color>
+
+    <color name="all_types">@android:color/transparent</color>
+    <color name="nano_brewery">@color/light_green</color>
+    <color name="office">@color/blue_grey</color>
+    <color name="tasting_room">@color/yellow</color>
+    <color name="micro_brewery">@color/deep_purple</color>
+    <color name="production_facility">@color/deep_orange</color>
+    <color name="restaurant_ale_house">@color/blue</color>
+    <color name="macro_brewery">@color/red</color>
+    <color name="brewpub">@color/light_blue</color>
+
+    <color name="list_item_text_primary">#dd000000</color>
+    <color name="list_item_text_secondary">#89000000</color>
+
 </resources>

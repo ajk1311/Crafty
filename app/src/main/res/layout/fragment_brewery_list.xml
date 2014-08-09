@@ -9,7 +9,7 @@
         android:background="@color/theme_default_primary"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingLeft="@dimen/list_item_content_margin_left"
+        android:paddingLeft="72dp"
         android:layout_width="match_parent"
         android:layout_height="@dimen/header_height">
 
@@ -45,7 +45,7 @@
             android:layout_gravity="center"
 
             android:text="@string/brewery_list_empty"
-            android:textColor="@android:color/black"
+            android:textColor="@color/list_item_text_secondary"
             android:textStyle="italic"
             android:textAppearance="?android:textAppearanceLarge"
             android:gravity="center_horizontal"
@@ -58,6 +58,9 @@
             android:layout_height="match_parent"
 
             android:animationCache="false"
-            android:scrollingCache="false"/>
+            android:scrollingCache="false"
+            android:paddingTop="@dimen/list_item_extra_padding_top"
+            android:paddingBottom="@dimen/list_item_extra_padding_bottom"
+            android:clipToPadding="false"/>
     </FrameLayout>
 </LinearLayout>

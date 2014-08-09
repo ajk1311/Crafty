@@ -1,4 +1,4 @@
-package com.akausejr.crafty.app;
+package com.akausejr.crafty.app.explore;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -6,28 +6,25 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.app.PendingIntent;
-import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.akausejr.crafty.CraftyApp;
 import com.akausejr.crafty.R;
+import com.akausejr.crafty.app.search.SearchActivity;
 import com.akausejr.crafty.model.LocationType;
 import com.akausejr.crafty.model.NamedLocation;
-import com.akausejr.crafty.provider.SearchSuggestionProvider;
 import com.akausejr.crafty.receiver.PassiveLocationReceiver;
 import com.akausejr.crafty.service.BreweryLocationUpdateService;
 import com.akausejr.crafty.service.UserActivityService;
@@ -186,27 +183,6 @@ public class BreweryActivity extends Activity implements LocationListener,
         outState.putBoolean(KEY_TRACK_LOCATION, mTrackLocation);
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        if (SearchSuggestionProvider.ACTION_SEARCH_SUGGESTION.equals(intent.getAction())) {
-            // If this activity got a search suggestion, execute the "search."
-            // In our case, we just move the map to the loaded coordinates and let
-            // the map fragment take care of updating the content
-            final Uri suggestionUri = intent.getData();
-            switch (getContentResolver().getType(suggestionUri)) {
-                case SearchSuggestionProvider.PLACES_CONTENT_TYPE:
-                    final String placeId = suggestionUri.getLastPathSegment();
-                    moveMapToPlace(placeId);
-                    break;
-                case SearchSuggestionProvider.BREWERIES_CONTENT_TYPE:
-                    final String breweryId = suggestionUri.getLastPathSegment();
-                    showBreweryDetails(breweryId);
-                    break;
-            }
-        }
-    }
-
     private void moveMapToPlace(String placeId) {
         showProgress(true);
         mPlacesTask = new LoadPlaceCoordinatesTask().execute(placeId,
@@ -224,6 +200,7 @@ public class BreweryActivity extends Activity implements LocationListener,
     }
 
     private void showBreweryDetails(String breweryId) {
+        // TODO show brewery details
         Toast.makeText(getApplicationContext(),
             "TODO: fetch and display brewery details", Toast.LENGTH_SHORT).show();
     }
@@ -371,24 +348,6 @@ public class BreweryActivity extends Activity implements LocationListener,
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
-
-        final MenuItem searchItem = menu.findItem(R.id.action_search);
-        final SearchView searchView = (SearchView) searchItem.getActionView();
-        searchView.setSearchableInfo(((SearchManager) getSystemService(SEARCH_SERVICE))
-            .getSearchableInfo(getComponentName()));
-        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-            @Override
-            public boolean onSuggestionSelect(int position) {
-                return false;
-            }
-
-            @Override
-            public boolean onSuggestionClick(int position) {
-                searchItem.collapseActionView();
-                return false;
-            }
-        });
-
         mViewMenuItem = menu.findItem(R.id.action_change_view);
         switch (mCurrentView) {
             case VIEW_MAP:
@@ -408,6 +367,9 @@ public class BreweryActivity extends Activity implements LocationListener,
         switch (item.getItemId()) {
             case R.id.action_change_view:
                 handleViewChange();
+                return true;
+            case R.id.action_search:
+                startActivity(new Intent(this, SearchActivity.class));
                 return true;
             case R.id.action_settings:
                 // TODO show settings
@@ -471,12 +433,12 @@ public class BreweryActivity extends Activity implements LocationListener,
 
     @Override
     public void onBrewerySelectedFromList(String breweryId) {
-        // TODO show brewery details
+        showBreweryDetails(breweryId);
     }
 
     @Override
     public void onBrewerySelectedFromMap(String breweryId) {
-        // TODO show brewery details
+        showBreweryDetails(breweryId);
     }
 
     @Override

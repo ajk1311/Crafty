@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/header_height"
         android:gravity="center_vertical"
-        android:paddingLeft="@dimen/list_item_content_margin_left">
+        android:paddingLeft="72dp">
 
         <Spinner
             android:id="@+id/type_spinner"

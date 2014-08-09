@@ -31,5 +31,6 @@
 
     <color name="list_item_text_primary">#dd000000</color>
     <color name="list_item_text_secondary">#89000000</color>
+    <color name="list_item_divider">#15000000</color>
 
 </resources>

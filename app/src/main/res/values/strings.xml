@@ -46,5 +46,10 @@
         <item>By Type</item>
     </string-array>
 
-    <string name="search_hint">Search city or brewery</string>
+    <string name="search_hint">Search beer or place</string>
+    <string name="search_empty">No results found</string>
+    <string name="search_error">Error performing search</string>
+    <string name="search_header_breweries">Breweries</string>
+    <string name="search_header_beers">Beers</string>
+    <string name="search_header_places">Places</string>
 </resources>

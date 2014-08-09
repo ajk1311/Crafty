@@ -9,11 +9,11 @@ import android.content.Intent;
  * @author AJ Kause
  * Created on 7/14/14.
  */
-public class LocationDetailsUpdateService extends IntentService {
+public class BreweryDetailsUpdateService extends IntentService {
 
-    private static final String TAG = LocationDetailsUpdateService.class.getSimpleName();
+    private static final String TAG = BreweryDetailsUpdateService.class.getSimpleName();
 
-    public LocationDetailsUpdateService() {
+    public BreweryDetailsUpdateService() {
         super(TAG);
     }
 

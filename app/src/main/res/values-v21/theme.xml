@@ -9,7 +9,7 @@
 
         <item name="android:windowContentTransitions">true</item>
         <item name="android:statusBarColor">?android:colorPrimaryDark</item>
-        <item name="android:navigationBarColor">?android:colorPrimaryDark</item>
+        <!--<item name="android:navigationBarColor">?android:colorPrimaryDark</item>-->
 
         <item name="android:actionBarTheme">@style/Theme.ActionBar</item>
         <!--/-->
@@ -19,6 +19,7 @@
         <item name="actionBarIconColor">@android:color/white</item>
 
         <item name="android:actionBarStyle">@style/Widget.Crafty.Light.ActionBar</item>
+        <item name="android:listViewStyle">@style/Widget.Crafty.ListView</item>
         <item name="android:dropDownListViewStyle">@style/Widget.Crafty.ListView.DropDown</item>
     </style>
 

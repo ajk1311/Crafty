@@ -6,14 +6,25 @@
     <dimen name="fab_button_diameter">56dp</dimen>
     <dimen name="fab_button_diameter_small">40dp</dimen>
 
-    <dimen name="list_item_bg_padding">1dp</dimen>
-    <dimen name="list_item_height">72dp</dimen>
-    <dimen name="list_image_height">40dp</dimen>
-    <dimen name="list_image_margin_left">16dp</dimen>
-    <dimen name="list_item_content_margin_left">72dp</dimen>
-    <dimen name="list_item_content_margin_right">16dp</dimen>
-    <dimen name="list_item_text_size_primary">14sp</dimen>
-    <dimen name="list_item_text_size_secondary">12sp</dimen>
+    <dimen name="text_primary">16sp</dimen>
+    <dimen name="text_secondary">14sp</dimen>
+
+    <dimen name="list_item_height_single_line">56dp</dimen>
+    <dimen name="list_item_height_single_line_no_icon">48dp</dimen>
+    <dimen name="list_item_text_single_line">@dimen/text_primary</dimen>
+    <dimen name="list_item_content_padding_left_single_line">16dp</dimen>
+    <dimen name="list_item_height_2_line">72dp</dimen>
+    <dimen name="list_item_text_line_1">@dimen/text_primary</dimen>
+    <dimen name="list_item_text_line_2">@dimen/text_secondary</dimen>
+    <dimen name="list_item_content_padding_left_2_line">72dp</dimen>
+    <dimen name="list_item_content_padding_top">16dp</dimen>
+    <dimen name="list_item_content_padding_right">16dp</dimen>
+    <dimen name="list_item_content_padding_bottom">16dp</dimen>
+    <dimen name="list_item_extra_padding_top">8dp</dimen>
+    <dimen name="list_item_extra_padding_bottom">8dp</dimen>
+    <dimen name="list_item_icon_size">40dp</dimen>
+    <dimen name="list_item_icon_bg_padding">1dp</dimen>
+    <dimen name="list_item_icon_padding_left">16dp</dimen>
 
     <dimen name="button_elevation">2dp</dimen>
     <dimen name="button_elevation_pressed">4dp</dimen>

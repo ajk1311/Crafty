@@ -14,7 +14,14 @@
         <item name="android:textColor">?actionBarIconColor</item>
     </style>
 
-    <!-- Drop down lists -->
+    <!-- Lists -->
+
+    <style name="Widget.Crafty.ListView" parent="android:Widget.Holo.ListView">
+        <item name="android:divider">@android:color/transparent</item>
+        <item name="android:dividerHeight">0dp</item>
+        <item name="android:animationCache">false</item>
+        <item name="android:scrollingCache">false</item>
+    </style>
 
     <style name="Widget.Crafty.ListView.DropDown" parent="android:Widget.Holo.ListView.DropDown">
         <item name="android:divider">@android:color/transparent</item>

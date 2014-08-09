@@ -22,15 +22,11 @@
 
         <item name="android:actionBarStyle">@style/Widget.Crafty.Light.ActionBar</item>
         <item name="android:selectableItemBackground">@drawable/selectable_item_background</item>
-
+        <item name="android:listViewStyle">@style/Widget.Crafty.ListView</item>
         <item name="android:dropDownListViewStyle">@style/Widget.Crafty.ListView.DropDown</item>
     </style>
 
     <style name="Theme.Crafty.Main" parent="Theme.Crafty.Base">
         <item name="android:windowContentOverlay">@null</item>
     </style>
-
-
-
-
 </resources>

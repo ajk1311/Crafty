@@ -17,7 +17,7 @@ import com.akausejr.crafty.R;
  * @author AJ Kause
  * Created on 7/17/14.
  */
-public class CircleColorLetterDrawable extends Drawable {
+public class CircleLetterColorDrawable extends Drawable {
 
     private Paint mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private TextPaint mLetterPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
@@ -26,7 +26,7 @@ public class CircleColorLetterDrawable extends Drawable {
 
     private static Typeface sTypeface;
 
-    public CircleColorLetterDrawable(Resources resources, int colorResId, char letter) {
+    public CircleLetterColorDrawable(Resources resources, int colorResId, char letter) {
         if (sTypeface == null) {
             sTypeface = Typeface.createFromAsset(resources.getAssets(), "Roboto-Light.tff");
         }

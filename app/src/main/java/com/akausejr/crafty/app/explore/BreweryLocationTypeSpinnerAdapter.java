@@ -1,4 +1,4 @@
-package com.akausejr.crafty.app;
+package com.akausejr.crafty.app.explore;
 
 import android.content.Context;
 import android.graphics.Canvas;

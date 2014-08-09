@@ -68,7 +68,7 @@ dependencies {
     // Google libraries
     compile 'com.google.code.gson:gson:2.2.4'
     compile 'com.android.support:support-v4:21.0.0-rc1'
-    compile 'com.google.android.gms:play-services:5.0.77'
+    compile 'com.google.android.gms:play-services:5.0.+'
     compile 'com.android.support:palette-v7:21.0.0-rc1'
     compile 'com.android.support:recyclerview-v7:21.0.0-rc1'
 

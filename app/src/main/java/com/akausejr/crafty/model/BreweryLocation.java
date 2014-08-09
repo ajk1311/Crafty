@@ -54,11 +54,7 @@ public class BreweryLocation {
 
     public String id;
 
-    public String name;
-
     public String status;
-
-    public String statusDisplay;
 
     public String locationType;
 
@@ -76,17 +72,11 @@ public class BreweryLocation {
 
     public String postalCode;
 
-    public String countryIsoCode;
-
     public String phone;
 
     public String breweryId;
 
     public Brewery brewery;
-
-    public String website;
-
-    public String isPrimary;
 
     public String getDisplayAddress() {
         StringBuilder address = new StringBuilder();

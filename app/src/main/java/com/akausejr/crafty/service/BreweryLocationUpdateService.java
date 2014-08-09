@@ -47,7 +47,7 @@ import java.util.Map;
  */
 public class BreweryLocationUpdateService extends IntentService {
 
-    private static final String TAG = LocationDetailsUpdateService.class.getSimpleName();
+    private static final String TAG = BreweryDetailsUpdateService.class.getSimpleName();
 
     public static final String EXTRA_LOCATION = TAG + ".LOCATION";
     public static final String EXTRA_RADIUS = TAG + ".RADIUS";
@@ -187,35 +187,21 @@ public class BreweryLocationUpdateService extends IntentService {
     private ContentValues getValuesForBreweryLocation(LatLng location, BreweryLocation brewLocation) {
         final ContentValues values = new ContentValues();
         values.put(BreweryLocationContract.ID, brewLocation.id);
-        values.put(BreweryLocationContract.NAME, brewLocation.name);
         values.put(BreweryLocationContract.STATUS, brewLocation.status);
-        values.put(BreweryLocationContract.STATUS_DISPLAY, brewLocation.statusDisplay);
         values.put(BreweryLocationContract.LOCATION_TYPE, brewLocation.locationType);
         values.put(BreweryLocationContract.LOCATION_TYPE_DISPLAY, brewLocation.locationTypeDisplay);
         values.put(BreweryLocationContract.LATITUDE, brewLocation.latitude);
         values.put(BreweryLocationContract.LONGITUDE, brewLocation.longitude);
-        values.put(BreweryLocationContract.FULL_ADDRESS, brewLocation.getDisplayAddress());
+        values.put(BreweryLocationContract.ADDRESS, brewLocation.getDisplayAddress());
         values.put(BreweryLocationContract.PHONE, brewLocation.phone);
         values.put(BreweryLocationContract.DISTANCE,
             getDistanceToBreweryLocation(location, brewLocation));
         values.put(BreweryLocationContract.BREWERY_ID, brewLocation.breweryId);
         values.put(BreweryLocationContract.BREWERY_NAME, brewLocation.brewery.name);
-        values.put(BreweryLocationContract.BREWERY_STATUS, brewLocation.brewery.status);
-        values.put(BreweryLocationContract.BREWERY_STATUS_DISPLAY,
-            brewLocation.brewery.statusDisplay);
-        values.put(BreweryLocationContract.BREWERY_DESCRIPTION, brewLocation.brewery.description);
-        values.put(BreweryLocationContract.BREWERY_ESTABLISH_DATE,
-            brewLocation.brewery.established);
         if (brewLocation.brewery.images != null) {
-            values.put(BreweryLocationContract.BREWERY_ICON_IMAGE_URL,
+            values.put(BreweryLocationContract.BREWERY_ICON_URL,
                 brewLocation.brewery.images.icon);
-            values.put(BreweryLocationContract.BREWERY_MEDIUM_IMAGE_URL,
-                brewLocation.brewery.images.medium);
-            values.put(BreweryLocationContract.BREWERY_LARGE_IMAGE_URL,
-                brewLocation.brewery.images.large);
         }
-        values.put(BreweryLocationContract.BREWERY_IS_ORGANIC, brewLocation.brewery.isOrganic);
-        values.put(BreweryLocationContract.BREWERY_WEBSITE, brewLocation.brewery.website);
         return values;
     }
 

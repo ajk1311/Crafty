@@ -2,10 +2,10 @@
 
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="48dp"
+    android:layout_height="@dimen/list_item_height_single_line_no_icon"
 
-    android:textSize="16sp"
+    android:textSize="@dimen/list_item_text_single_line"
     android:gravity="left|center_vertical"
-    android:textColor="@color/list_item_text_primary"
+    android:textColor="@drawable/spinner_text_color"
     android:padding="@dimen/margin_xsmall"
     android:drawablePadding="@dimen/margin_xsmall"/>

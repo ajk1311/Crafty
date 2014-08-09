@@ -1,4 +1,4 @@
-package com.akausejr.crafty.app;
+package com.akausejr.crafty.app.base;
 
 import android.view.View;
 import android.view.ViewGroup;

@@ -32,17 +32,17 @@
         revision="20.0.0"
         sha1="14d500eeb7128db6c0f9b55f166c42eacf00f3b6"/>
     <item
-        dex="/Users/akausejr/Desktop/java/Crafty/app/build/intermediates/pre-dexed/debug/gson-2.2.4-fb338829ce2224f1dafb441df624a8219dcadfa2.jar"
-        jar="/Users/akausejr/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.2.4/a60a5e993c98c864010053cb901b7eab25306568/gson-2.2.4.jar"
-        jumboMode="false"
-        revision="20.0.0"
-        sha1="a60a5e993c98c864010053cb901b7eab25306568"/>
-    <item
         dex="/Users/akausejr/Desktop/java/Crafty/app/build/intermediates/pre-dexed/debug/classes-fdd740f1195d66e26a977d68934b99ba0c4f54d4.jar"
         jar="/Users/akausejr/Desktop/java/Crafty/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/5.0.77/classes.jar"
         jumboMode="false"
         revision="20.0.0"
         sha1="b6a82434c1eca686607867cd906bcc80ed987837"/>
+    <item
+        dex="/Users/akausejr/Desktop/java/Crafty/app/build/intermediates/pre-dexed/debug/gson-2.2.4-fb338829ce2224f1dafb441df624a8219dcadfa2.jar"
+        jar="/Users/akausejr/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.2.4/a60a5e993c98c864010053cb901b7eab25306568/gson-2.2.4.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="a60a5e993c98c864010053cb901b7eab25306568"/>
     <item
         dex="/Users/akausejr/Desktop/java/Crafty/app/build/intermediates/pre-dexed/debug/support-annotations-21.0.0-rc1-87b481bd3998b1c6bbb8d2b9c16369869b5efe64.jar"
         jar="/Users/akausejr/Desktop/AndroidSDK/extras/android/m2repository/com/android/support/support-annotations/21.0.0-rc1/support-annotations-21.0.0-rc1.jar"

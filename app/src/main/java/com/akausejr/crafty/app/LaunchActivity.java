@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 
 import com.akausejr.crafty.R;
+import com.akausejr.crafty.app.explore.BreweryActivity;
 import com.akausejr.crafty.util.PreferenceHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;

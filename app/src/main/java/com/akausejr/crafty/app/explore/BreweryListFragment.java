@@ -1,4 +1,4 @@
-package com.akausejr.crafty.app;
+package com.akausejr.crafty.app.explore;
 
 
 import android.app.Activity;
@@ -23,7 +23,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.akausejr.crafty.R;
-import com.akausejr.crafty.graphics.CircleColorLetterDrawable;
+import com.akausejr.crafty.graphics.CircleLetterColorDrawable;
 import com.akausejr.crafty.model.BreweryLocation;
 import com.akausejr.crafty.model.LocationType;
 import com.akausejr.crafty.provider.BreweryLocationContract;
@@ -69,12 +69,11 @@ public class BreweryListFragment extends Fragment implements LoaderManager.Loade
     private static final String[] QUERY_PROJECTION = new String[] {
         BaseColumns._ID,
         BreweryLocationContract.ID,
-        BreweryLocationContract.NAME,
         BreweryLocationContract.BREWERY_NAME,
         BreweryLocationContract.DISTANCE,
         BreweryLocationContract.LOCATION_TYPE,
         BreweryLocationContract.LOCATION_TYPE_DISPLAY,
-        BreweryLocationContract.BREWERY_ICON_IMAGE_URL
+        BreweryLocationContract.BREWERY_ICON_URL
     };
 
     /** Only display locations that are verified by brewerydb.com */
@@ -82,12 +81,11 @@ public class BreweryListFragment extends Fragment implements LoaderManager.Loade
 
     // Cursor indices
     private static final int ID_INDEX = 1;
-    private static final int NAME_INDEX = 2;
-    private static final int BREWERY_NAME_INDEX = 3;
-    private static final int DISTANCE_INDEX = 4;
-    private static final int LOCATION_TYPE_INDEX = 5;
-    private static final int LOCATION_TYPE_DISPLAY_INDEX = 6;
-    private static final int ICON_URL_INDEX = 7;
+    private static final int BREWERY_NAME_INDEX = 2;
+    private static final int DISTANCE_INDEX = 3;
+    private static final int LOCATION_TYPE_INDEX = 4;
+    private static final int LOCATION_TYPE_DISPLAY_INDEX = 5;
+    private static final int ICON_URL_INDEX = 6;
 
     /** Handle on this fragment's controller */
     private BreweryListController mController;
@@ -296,7 +294,7 @@ public class BreweryListFragment extends Fragment implements LoaderManager.Loade
             mFeetFormatString = context.getString(R.string.feet_away);
             mMilesFormatString = context.getString(R.string.miles_away);
             mCircleTransform = new CircleTransform(context.getResources()
-                .getDimensionPixelSize(R.dimen.list_item_bg_padding));
+                .getDimensionPixelSize(R.dimen.list_item_icon_bg_padding));
         }
 
         @Override
@@ -308,7 +306,7 @@ public class BreweryListFragment extends Fragment implements LoaderManager.Loade
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
             final View itemView = LayoutInflater.from(context)
-                .inflate(R.layout.brewery_location_item, parent, false);
+                .inflate(R.layout.list_item_2_line, parent, false);
             itemView.setTag(new ViewHolder(itemView));
             return itemView;
         }
@@ -324,13 +322,12 @@ public class BreweryListFragment extends Fragment implements LoaderManager.Loade
             // Info
             final StringBuilder info = new StringBuilder();
             info.append(cursor.getString(LOCATION_TYPE_DISPLAY_INDEX)).append(BULLET)
-                .append(cursor.getString(NAME_INDEX)).append(' ')
                 .append(distanceString(cursor.getDouble(DISTANCE_INDEX)));
             holder.info.setText(info);
 
             // Icon background
             CompatUtil.setViewBackground(holder.icon,
-                new CircleColorLetterDrawable(
+                new CircleLetterColorDrawable(
                     context.getResources(),
                     BreweryLocation.getColorResIdForType(cursor.getString(LOCATION_TYPE_INDEX)),
                     breweryName.charAt(0)));
@@ -338,6 +335,8 @@ public class BreweryListFragment extends Fragment implements LoaderManager.Loade
             // Finally, load the icon image
             final String iconUrl = cursor.getString(ICON_URL_INDEX);
             Picasso.with(context).load(iconUrl).transform(mCircleTransform).into(holder.icon);
+
+            holder.divider.setVisibility(cursor.isLast() ? View.INVISIBLE : View.VISIBLE);
         }
 
         /**
@@ -357,10 +356,12 @@ public class BreweryListFragment extends Fragment implements LoaderManager.Loade
             ImageView icon;
             TextView name;
             TextView info;
+            View divider;
             private ViewHolder(View itemView) {
                 icon = (ImageView) itemView.findViewById(R.id.brewery_icon);
                 name = (TextView) itemView.findViewById(R.id.brewery_name);
                 info = (TextView) itemView.findViewById(R.id.brewery_info);
+                divider = itemView.findViewById(R.id.divider);
             }
         }
     }

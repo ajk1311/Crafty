@@ -12,8 +12,7 @@
         android:id="@+id/action_search"
         android:icon="@drawable/ic_action_search"
         android:title="@string/menu_main_search"
-        android:showAsAction="ifRoom|collapseActionView"
-        android:actionViewClass="android.widget.SearchView"/>
+        android:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_settings"

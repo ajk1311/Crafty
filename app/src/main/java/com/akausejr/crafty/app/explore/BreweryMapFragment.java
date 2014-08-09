@@ -1,4 +1,4 @@
-package com.akausejr.crafty.app;
+package com.akausejr.crafty.app.explore;
 
 import android.app.Activity;
 import android.app.LoaderManager;
@@ -23,7 +23,7 @@ import android.widget.TextView;
 
 import com.akausejr.crafty.CraftyApp;
 import com.akausejr.crafty.R;
-import com.akausejr.crafty.graphics.CircleColorLetterDrawable;
+import com.akausejr.crafty.graphics.CircleLetterColorDrawable;
 import com.akausejr.crafty.model.BreweryLocation;
 import com.akausejr.crafty.model.LocationType;
 import com.akausejr.crafty.model.NamedLocation;
@@ -100,9 +100,9 @@ public class BreweryMapFragment extends MapFragment implements LoaderManager.Loa
         BreweryLocationContract.LATITUDE,
         BreweryLocationContract.LONGITUDE,
         BreweryLocationContract.DISTANCE,
-        BreweryLocationContract.FULL_ADDRESS,
+        BreweryLocationContract.ADDRESS,
         BreweryLocationContract.LOCATION_TYPE,
-        BreweryLocationContract.BREWERY_ICON_IMAGE_URL
+        BreweryLocationContract.BREWERY_ICON_URL
     };
 
     /** Only display locations that are verified by brewerydb.com */
@@ -592,7 +592,7 @@ public class BreweryMapFragment extends MapFragment implements LoaderManager.Loa
             mFeetFormatString = context.getString(R.string.feet_away);
             mMilesFormatString = context.getString(R.string.miles_away);
             mCircleTransform = new CircleTransform(getResources()
-                .getDimensionPixelSize(R.dimen.list_item_bg_padding));
+                .getDimensionPixelSize(R.dimen.list_item_icon_bg_padding));
         }
 
         @Override
@@ -603,7 +603,7 @@ public class BreweryMapFragment extends MapFragment implements LoaderManager.Loa
 
             // Icon
             final ImageView icon = (ImageView) view.findViewById(R.id.brewery_icon);
-            CompatUtil.setViewBackground(icon, new CircleColorLetterDrawable(getResources(),
+            CompatUtil.setViewBackground(icon, new CircleLetterColorDrawable(getResources(),
                 BreweryLocation.getColorResIdForType(record.type), record.name.charAt(0)));
             Picasso.with(getActivity()).load(record.iconUrl).transform(mCircleTransform).into(icon);
 

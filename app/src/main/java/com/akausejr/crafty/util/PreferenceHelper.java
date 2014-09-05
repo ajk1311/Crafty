@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
 
-import com.akausejr.crafty.model.NamedLocation;
+import com.akausejr.crafty.data.model.NamedLocation;
 import com.google.android.gms.location.DetectedActivity;
 
 /**

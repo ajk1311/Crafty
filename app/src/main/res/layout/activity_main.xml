@@ -2,14 +2,14 @@
 
     <fragment
         android:id="@+id/brewery_map"
-        class="com.akausejr.crafty.app.explore.BreweryMapFragment"
+        class="com.akausejr.crafty.ui.BreweryMapFragment"
 
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
     <fragment
         android:id="@+id/brewery_list"
-        class="com.akausejr.crafty.app.explore.BreweryListFragment"
+        class="com.akausejr.crafty.ui.BreweryListFragment"
 
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

@@ -57,11 +57,11 @@ public class EnablePassiveLocationReceiverService extends IntentService {
             if (retryCount < MAX_RETRY_COUNT) {
                 try {
                     Thread.sleep((long) (Math.pow(2, retryCount) * 1000));
+                    startService(new Intent(this, EnablePassiveLocationReceiverService.class)
+                        .putExtra(EXTRA_RETRY_COUNT, retryCount + 1));
                 } catch (InterruptedException e) {
                 }
             }
-            startService(new Intent(this, EnablePassiveLocationReceiverService.class)
-                .putExtra(EXTRA_RETRY_COUNT, retryCount + 1));
         }
     }
 }

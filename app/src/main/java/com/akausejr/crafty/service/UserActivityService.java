@@ -3,8 +3,9 @@ package com.akausejr.crafty.service;
 import android.app.IntentService;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
-import com.akausejr.crafty.util.DebugLog;
+import com.akausejr.crafty.BuildConfig;
 import com.akausejr.crafty.util.PreferenceHelper;
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
@@ -47,7 +48,9 @@ public class UserActivityService extends IntentService {
                 activityType != lastActivityType) {
                 // Only respond if the result is confident enough and it differs from
                 // our previously recorded user activity
-                DebugLog.d(TAG, "User activity changed to " + nameForActivity(activityType));
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "User activity changed to " + nameForActivity(activityType));
+                }
                 preferenceHelper.saveRecentUserActivity(activityType);
                 LocalBroadcastManager.getInstance(this)
                         .sendBroadcast(new Intent(ACTION_ACTIVITY_UPDATE));

@@ -1,10 +1,8 @@
 package com.akausejr.crafty.receiver;
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 
 import com.akausejr.crafty.util.PreferenceHelper;
 
@@ -25,11 +23,6 @@ public class PowerReceiver extends BroadcastReceiver {
             return;
         }
         final boolean lowBattery = Intent.ACTION_BATTERY_LOW.equals(intent.getAction());
-        final ComponentName passiveReceiver =
-            new ComponentName(context, PassiveLocationReceiver.class);
-        context.getPackageManager().setComponentEnabledSetting(passiveReceiver,
-            lowBattery ? PackageManager.COMPONENT_ENABLED_STATE_DISABLED :
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-            PackageManager.DONT_KILL_APP);
+        PassiveLocationReceiver.setEnabled(context, !lowBattery);
     }
 }

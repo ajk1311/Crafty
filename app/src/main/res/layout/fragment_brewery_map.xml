@@ -42,7 +42,7 @@
             android:orientation="horizontal"
             android:padding="@dimen/margin_xsmall">
 
-            <com.akausejr.crafty.widget.FabImageButton
+            <com.akausejr.crafty.ui.widget.FabImageButton
                 android:id="@+id/btn_my_location"
 
                 android:layout_width="@dimen/fab_button_diameter_small"
@@ -57,7 +57,7 @@
                 android:elevation="@dimen/button_elevation"
                 android:stateListAnimator="@anim/button_raise"  />
 
-            <com.akausejr.crafty.widget.FabImageButton
+            <com.akausejr.crafty.ui.widget.FabImageButton
                 android:id="@+id/btn_zoom_in"
 
                 android:layout_width="@dimen/fab_button_diameter_small"
@@ -72,7 +72,7 @@
                 android:elevation="@dimen/button_elevation"
                 android:stateListAnimator="@anim/button_raise" />
 
-            <com.akausejr.crafty.widget.FabImageButton
+            <com.akausejr.crafty.ui.widget.FabImageButton
                 android:id="@+id/btn_zoom_out"
 
                 android:layout_width="@dimen/fab_button_diameter_small"

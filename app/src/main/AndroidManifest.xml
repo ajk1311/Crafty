@@ -30,7 +30,7 @@
         <!--    Activities  -->
 
         <activity
-            android:name=".app.LaunchActivity"
+            android:name=".LaunchActivity"
             android:label="@string/app_name"
             android:theme="@style/Theme.Crafty.Base">
             <intent-filter>
@@ -39,15 +39,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".app.explore.BreweryActivity"
+            android:name=".ui.BreweryActivity"
             android:label=""
             android:theme="@style/Theme.Crafty.Main" >
         </activity>
         <activity
-            android:name=".app.search.SearchActivity"
+            android:name=".ui.SearchActivity"
             android:label=""
             android:theme="@style/Theme.Crafty.Base"
-            android:parentActivityName=".app.explore.BreweryActivity">
+            android:parentActivityName=".ui.BreweryActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -61,10 +61,10 @@
 
         <!--    Services    -->
         <service
-            android:name=".service.BreweryLocationUpdateService"
+            android:name=".legacy.service.BreweryLocationUpdateService"
             android:exported="false" />
         <service
-            android:name=".service.BreweryDetailsUpdateService"
+            android:name=".legacy.service.BreweryDetailsUpdateService"
             android:exported="false" />
         <service
             android:name=".service.EnablePassiveLocationReceiverService"
@@ -95,12 +95,12 @@
 
         <!--    Providers   -->
         <provider
-            android:authorities="com.akausejr.crafty.provider.CraftyContentProvider"
-            android:name=".provider.CraftyContentProvider"
+            android:authorities="com.akausejr.crafty.legacy.provider.CraftyContentProvider"
+            android:name=".legacy.provider.CraftyContentProvider"
             android:exported="false" />
         <provider
-            android:authorities="com.akausejr.crafty.provider.SearchSuggestionProvider"
-            android:name=".provider.SearchSuggestionProvider"
+            android:authorities="com.akausejr.crafty.legacy.provider.SearchSuggestionProvider"
+            android:name=".legacy.provider.SearchSuggestionProvider"
             android:exported="false" />
 
         <!--    Meta    -->

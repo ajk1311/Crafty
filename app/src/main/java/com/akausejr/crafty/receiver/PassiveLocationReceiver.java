@@ -1,14 +1,13 @@
 package com.akausejr.crafty.receiver;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 
-import com.akausejr.crafty.CraftyApp;
-import com.akausejr.crafty.model.NamedLocation;
-import com.akausejr.crafty.service.BreweryLocationUpdateService;
-import com.akausejr.crafty.util.DebugLog;
+import com.akausejr.crafty.data.model.NamedLocation;
 import com.akausejr.crafty.util.GeocodeUtils;
 import com.akausejr.crafty.util.PreferenceHelper;
 import com.google.android.gms.location.FusedLocationProviderApi;
@@ -23,7 +22,16 @@ import com.google.android.gms.location.FusedLocationProviderApi;
  */
 public class PassiveLocationReceiver extends BroadcastReceiver {
 
-    private static final String TAG = PassiveLocationReceiver.class.getSimpleName();
+    /** Enabled or disables the passive receiver based on the flag passed in */
+    public static final void setEnabled(Context context, boolean enabled) {
+        final ComponentName passiveReceiver =
+            new ComponentName(context, PassiveLocationReceiver.class);
+        final int enabledFlag = enabled ?
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+        context.getPackageManager().setComponentEnabledSetting(passiveReceiver, enabledFlag,
+            PackageManager.DONT_KILL_APP);
+    }
 
     @Override
     public void onReceive(final Context context, Intent intent) {
@@ -42,13 +50,6 @@ public class PassiveLocationReceiver extends BroadcastReceiver {
                 public void onLocationNameDecoded(String name) {
                     final NamedLocation currentLocation = new NamedLocation(location, name);
                     prefs.saveRecentLocation(currentLocation);
-                    DebugLog.w(TAG, "calling update service at " + System.currentTimeMillis());
-                    context.startService(new Intent(context, BreweryLocationUpdateService.class)
-                        .putExtra(BreweryLocationUpdateService.EXTRA_LOCATION,
-                            currentLocation.toLatLng())
-                        .putExtra(BreweryLocationUpdateService.EXTRA_RADIUS,
-                            CraftyApp.DEFAULT_SEARCH_RADIUS)
-                        .putExtra(BreweryLocationUpdateService.EXTRA_FORCED, false));
                 }
             });
         }

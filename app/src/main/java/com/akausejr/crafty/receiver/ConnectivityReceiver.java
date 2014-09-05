@@ -37,13 +37,8 @@ public class ConnectivityReceiver extends BroadcastReceiver {
                 PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP);
 
-            final PreferenceHelper prefs = new PreferenceHelper(context);
-            if (prefs.isAppInBackground()) {
-                final ComponentName passiveLocationReceiver =
-                    new ComponentName(context, PassiveLocationReceiver.class);
-                packageManager.setComponentEnabledSetting(passiveLocationReceiver,
-                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                    PackageManager.DONT_KILL_APP);
+            if (new PreferenceHelper(context).isAppInBackground()) {
+                PassiveLocationReceiver.setEnabled(context, true);
             }
 
             LocalBroadcastManager.getInstance(context)
